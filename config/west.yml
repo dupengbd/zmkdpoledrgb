@@ -1,0 +1,25 @@
+manifest:
+  remotes:
+    - name: zmkfirmware
+      url-base: https://github.com/zmkfirmware
+    - name: codekeeb
+      url-base: https://github.com/codekeeb
+    - name: dupengbd
+      url-base: https://github.com/dupengbd
+  projects:
+    - name: zmk
+      remote: zmkfirmware
+      revision: v0.3
+      import: app/west.yml
+    # Override the zmk-studio-messages that ZMK's app/west.yml imports:
+    # adds get_sensor_bindings + SetSensorBindingRequest/Response so ZMK
+    # Studio can read/write encoder rotation behavior
+    - name: zmk-studio-messages
+      remote: codekeeb
+      revision: sensor-binding-rpc
+    # Fork of codekeeb/zmk-nice-oled: bigger profile digit (16px font)
+    - name: zmk-nice-oled
+      remote: dupengbd
+      revision: selectable
+  self:
+    path: config
