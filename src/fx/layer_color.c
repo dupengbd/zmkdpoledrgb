@@ -38,11 +38,16 @@ static const struct zmk_color_hsl layer_tint_colors[] = {
     {.h = 270, .s = 100, .l = 50},  /* RAISE = purple */
 };
 
-/* All thumb LEDs (same chain indices on both halves).
- * zmkdp 29-LED chain: pixel 0 = first light, 1-28 = keyboard lights.
- * Thumbs sit under the bottom row, ordered outer -> inner: 1, 2, 3, 4
- * and the inner pair 5, 6. */
+/* Thumb LEDs. Chain indices DIFFER per half: the left half was
+ * re-numbered (every row counted right-to-left, first light at inner
+ * bottom), while the right half keeps the original mapping.
+ * Left (central): bottom row 28..25 (outer->inner), inner column 19,
+ * first light 0. Right (peripheral): unchanged 1..6. */
+#if IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL) || !IS_ENABLED(CONFIG_ZMK_SPLIT)
+static const uint8_t layer_tint_thumb_px[] = {0, 19, 25, 26, 27, 28};
+#else
 static const uint8_t layer_tint_thumb_px[] = {1, 2, 3, 4, 5, 6};
+#endif
 
 /* Arrow cluster in LOWER: I(UP) J(LEFT) K(DOWN) L(RIGHT) positions.
  * Only exists on the right half (peripheral). Right-half LED indices:
@@ -95,10 +100,11 @@ void zmk_rgb_fx_layer_color_apply(struct rgb_fx_pixel *pixels, size_t num_pixels
     /* Bluetooth panel in RAISE: BT_CLR (top-left corner) red,
      * profiles 0-4 yellow and the ACTIVE profile green. */
     if (layer_tint == 2) {
-        /* Left half: BT_CLR = top-outer key -> LED 25, BT_SEL 0-4 ->
-         * LEDs 26, 27, 28, 20, 19 (see config/zmkdp_left.overlay). */
-        static const uint8_t bt_clr_px = 25;                 /* top-left corner (BT_CLR) */
-        static const uint8_t bt_prof_px[] = {26, 27, 28, 20, 19}; /* keys 1-5 */
+        /* Left half (new numbering, top row outer->inner = 6..1):
+         * BT_CLR = top-outer corner -> LED 6, BT_SEL 0-4 ->
+         * LEDs 5, 4, 3, 2, 1 (see config/zmkdp_left.overlay). */
+        static const uint8_t bt_clr_px = 6;                  /* top-left corner (BT_CLR) */
+        static const uint8_t bt_prof_px[] = {5, 4, 3, 2, 1}; /* keys 1-5 */
 
         if (bt_clr_px < num_pixels) {
             pixels[bt_clr_px].value =

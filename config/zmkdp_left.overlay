@@ -1,28 +1,28 @@
 /*
  * RGB FX - left half (zmkdp, 29 LEDs).
  *
- * New wiring (2026-09): the old 8-LED underglow strip was removed.
- * Each half now has one 29-LED chain:
- *   pixel 0     = "first light" (chain start, unnumbered circle)
- *   pixels 1-28 = keyboard lights, snake order as drawn by hand:
+ * Wiring confirmed by hand-drawn map (2026-09, photo #2): every row is
+ * numbered RIGHT-TO-LEFT (inner -> outer). Chain route: the first light
+ * sits at the inner bottom corner, the chain goes up to the top-inner
+ * LED 1, then snakes right-to-left row by row, ending at bottom-outer:
  *
  *     (keyboard view, outer edge on the LEFT, seam on the RIGHT)
- *       [0] 25 26 27 28 20 19
- *        24 23 22 21 17 18
- *        13 14 15 16  8  7
- *        12 11 10  9  5  6
- *         1  2  3  4  .  .   <- bottom row has no LEDs under the
- *                               inner two (thumb) columns
+ *        6  5  4  3  2  1
+ *       12 11 10  9  8  7
+ *       18 17 16 15 14 13
+ *       24 23 22 21 20 19
+ *       28 27 26 25  0     <- 0 = first light (chain start, innermost)
  *
- * Canvas: x 0 (outer) .. 84 (inner seam); right half mirrors to 216..300.
- * Column step 14, row step 15 (y: 0 top .. 60 bottom).
+ * Rows 1-4 have LEDs under all 6 columns; the bottom row only under
+ * the inner 4 columns plus the first light. Canvas: x 0 (outer) .. 84
+ * (inner), y 0 (top) .. 60 (bottom). Column step 14, row step 15.
+ *
+ * NOTE: ONLY the left half uses this numbering. The right half keeps
+ * its own mapping (config/zmkdp_right.overlay) and was NOT changed.
  *
  * key-pixels: 18 entries per row (7 left + 7 right + 4 third), matching
- * the matrix transform in zmkdp.dtsi. Remote keys (right/third) point to
- * pixel 19 (inner top) so ripples enter from the seam.
- *
- * NOTE: orientation assumed from the hand drawing. If effects run
- * mirrored on hardware, mirror the x coordinates (x -> 84 - x on left).
+ * the matrix transform in zmkdp.dtsi. Remote keys (right/third) alias
+ * to pixel 1 (inner top) so ripples enter from the seam.
  */
 
 #include <rgb_fx.dtsi>
@@ -38,41 +38,41 @@
         drivers = <&led_strip>;
         chain-lengths = <29>;
         pixels
-            = <&pixel 0 0>,    /*  0 = first light (chain start) */
-              <&pixel 14 60>,  /*  1 = bottom row, outer */
-              <&pixel 28 60>,  /*  2 */
-              <&pixel 42 60>,  /*  3 */
-              <&pixel 56 60>,  /*  4 = bottom row, inner */
-              <&pixel 70 45>,  /*  5 */
-              <&pixel 84 45>,  /*  6 = row 3, inner seam */
-              <&pixel 84 30>,  /*  7 = row 2, inner seam */
-              <&pixel 70 30>,  /*  8 */
-              <&pixel 56 45>,  /*  9 */
-              <&pixel 42 45>,  /* 10 */
-              <&pixel 28 45>,  /* 11 */
-              <&pixel 14 45>,  /* 12 = row 3, outer */
-              <&pixel 14 30>,  /* 13 = row 2, outer */
-              <&pixel 28 30>,  /* 14 */
+            = <&pixel 84 60>,  /*  0 = first light (chain start, inner bottom) */
+              <&pixel 70 0>,   /*  1 = top row, inner seam */
+              <&pixel 56 0>,   /*  2 */
+              <&pixel 42 0>,   /*  3 */
+              <&pixel 28 0>,   /*  4 */
+              <&pixel 14 0>,   /*  5 */
+              <&pixel 0 0>,    /*  6 = top row, outer */
+              <&pixel 70 15>,  /*  7 */
+              <&pixel 56 15>,  /*  8 */
+              <&pixel 42 15>,  /*  9 */
+              <&pixel 28 15>,  /* 10 */
+              <&pixel 14 15>,  /* 11 */
+              <&pixel 0 15>,   /* 12 = row 2, outer */
+              <&pixel 70 30>,  /* 13 */
+              <&pixel 56 30>,  /* 14 */
               <&pixel 42 30>,  /* 15 */
-              <&pixel 56 30>,  /* 16 */
-              <&pixel 70 15>,  /* 17 */
-              <&pixel 84 15>,  /* 18 = row 1, inner seam */
-              <&pixel 84 0>,   /* 19 = top row, inner seam */
-              <&pixel 70 0>,   /* 20 */
-              <&pixel 56 15>,  /* 21 */
-              <&pixel 42 15>,  /* 22 */
-              <&pixel 28 15>,  /* 23 */
-              <&pixel 14 15>,  /* 24 = row 1, outer */
-              <&pixel 14 0>,   /* 25 = top row, outer */
-              <&pixel 28 0>,   /* 26 */
-              <&pixel 42 0>,   /* 27 */
-              <&pixel 56 0>;   /* 28 */
+              <&pixel 28 30>,  /* 16 */
+              <&pixel 14 30>,  /* 17 */
+              <&pixel 0 30>,   /* 18 = row 3, outer */
+              <&pixel 70 45>,  /* 19 */
+              <&pixel 56 45>,  /* 20 */
+              <&pixel 42 45>,  /* 21 */
+              <&pixel 28 45>,  /* 22 */
+              <&pixel 14 45>,  /* 23 */
+              <&pixel 0 45>,   /* 24 = row 4, outer */
+              <&pixel 70 60>,  /* 25 = bottom row, inner */
+              <&pixel 56 60>,  /* 26 */
+              <&pixel 42 60>,  /* 27 */
+              <&pixel 28 60>;  /* 28 = bottom row */
         key-pixels
-            = <25 26 27 28 20 19 19  19 19 19 19 19 19 19  19 19 19 19
-               24 23 22 21 17 18 18  19 19 19 19 19 19 19  19 19 19 19
-               13 14 15 16  8  7  7  19 19 19 19 19 19 19  19 19 19 19
-               12 11 10  9  5  6  6  19 19 19 19 19 19 19  19 19 19 19
-                1  2  3  4  5  6  6  19 19 19 19 19 19 19  19 19 19 19>;
+            = < 6  5  4  3  2  1  1   1 1 1 1 1 1 1   1 1 1 1
+               12 11 10  9  8  7  7   1 1 1 1 1 1 1   1 1 1 1
+               18 17 16 15 14 13 13   1 1 1 1 1 1 1   1 1 1 1
+               24 23 22 21 20 19 19   1 1 1 1 1 1 1   1 1 1 1
+               24 23 28 27 26 25  0   1 1 1 1 1 1 1   1 1 1 1>;
     };
 
     fx_gradient: fx_gradient {
