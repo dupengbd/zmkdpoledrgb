@@ -1,8 +1,15 @@
 /*
- * RGB FX - right half (zmkdp, 8 LEDs).
+ * RGB FX - right half (zmkdp, 29 LEDs).
  *
  * Mirror of zmkdp_left.overlay across the continuous canvas.
- * Right half x: 220 (inner) to 300 (outer).
+ * Right half x: 216 (inner seam) to 300 (outer); x = 300 - x_left.
+ * Chain order is identical to the left half (pixel 0 = first light,
+ * 1-28 = keyboard lights in hand-drawn snake order).
+ *
+ * key-pixels: 18 entries per row (7 left + 7 right + 4 third). Left and
+ * third keys are remote here -> point to pixel 19 (inner top) so ripples
+ * enter from the seam. Right keys map to their nearest LED; right key
+ * col 0 is the INNER column (mirrored vs the left half).
  */
 
 #include <rgb_fx.dtsi>
@@ -16,27 +23,48 @@
     rgb_fx: rgb_fx {
         compatible = "zmk,rgb-fx";
         drivers = <&led_strip>;
-        chain-lengths = <8>;
+        chain-lengths = <29>;
         pixels
-            = <&pixel 220 0>,   /*  0 = LED#1 inner top */
-              <&pixel 220 30>,   /*  1 = LED#2 inner middle */
-              <&pixel 220 60>,   /*  2 = LED#3 inner bottom */
-              <&pixel 260 0>,    /*  3 = LED#4 center top */
-              <&pixel 260 30>,   /*  4 = LED#5 center middle */
-              <&pixel 260 60>,   /*  5 = LED#6 center bottom */
-              <&pixel 300 0>,    /*  6 = LED#7 outer top */
-              <&pixel 300 60>;   /*  7 = LED#8 outer bottom */
+            = <&pixel 300 0>,  /*  0 = first light (chain start) */
+              <&pixel 286 60>, /*  1 = bottom row, outer */
+              <&pixel 272 60>, /*  2 */
+              <&pixel 258 60>, /*  3 */
+              <&pixel 244 60>, /*  4 = bottom row, inner */
+              <&pixel 230 45>, /*  5 */
+              <&pixel 216 45>, /*  6 = row 3, inner seam */
+              <&pixel 216 30>, /*  7 = row 2, inner seam */
+              <&pixel 230 30>, /*  8 */
+              <&pixel 244 45>, /*  9 */
+              <&pixel 258 45>, /* 10 */
+              <&pixel 272 45>, /* 11 */
+              <&pixel 286 45>, /* 12 = row 3, outer */
+              <&pixel 286 30>, /* 13 = row 2, outer */
+              <&pixel 272 30>, /* 14 */
+              <&pixel 258 30>, /* 15 */
+              <&pixel 244 30>, /* 16 */
+              <&pixel 230 15>, /* 17 */
+              <&pixel 216 15>, /* 18 = row 1, inner seam */
+              <&pixel 216 0>,  /* 19 = top row, inner seam */
+              <&pixel 230 0>,  /* 20 */
+              <&pixel 244 15>, /* 21 */
+              <&pixel 258 15>, /* 22 */
+              <&pixel 272 15>, /* 23 */
+              <&pixel 286 15>, /* 24 = row 1, outer */
+              <&pixel 286 0>,  /* 25 = top row, outer */
+              <&pixel 272 0>,  /* 26 */
+              <&pixel 258 0>,  /* 27 */
+              <&pixel 244 0>;  /* 28 */
         key-pixels
-            = <0 0 0 0 0 0 0  3 4 5 6 7 0 0  0 0 0 0
-               0 0 0 0 0 0 0  3 4 5 6 7 0 0  0 0 0 0
-               0 0 0 0 0 0 0  3 4 5 6 7 0 0  0 0 0 0
-               0 0 0 0 0 0 0  3 4 5 6 7 0 0  0 0 0 0
-               0 0 0 0 0 0 0  3 4 5 6 7 0 0  0 0 0 0>;
+            = <19 19 19 19 19 19 19  19 20 28 27 26 25 25  19 19 19 19
+               19 19 19 19 19 19 19  18 17 21 22 23 24 24  19 19 19 19
+               19 19 19 19 19 19 19   7  8 16 15 14 13 13  19 19 19 19
+               19 19 19 19 19 19 19   6  5  9 10 11 12 12  19 19 19 19
+               19 19 19 19 19 19 19   6  5  4  3  2  1  1  19 19 19 19>;
     };
 
     fx_gradient: fx_gradient {
         compatible = "zmk,rgb-fx-linear-gradient";
-        pixels = <0 1 2 3 4 5 6 7>;
+        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28>;
         colors = <HSL(160, 100, 50) HSL(280, 100, 50) HSL(20, 100, 50)>;
         angle = <15>;
         duration = <8>;
@@ -44,7 +72,7 @@
 
     fx_ripple: fx_ripple {
         compatible = "zmk,rgb-fx-ripple";
-        pixels = <0 1 2 3 4 5 6 7>;
+        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28>;
         color = <HSL(200, 100, 50)>;
         duration = <800>;
         ripple-width = <30>;
@@ -53,21 +81,21 @@
 
     fx_sparkle: fx_sparkle {
         compatible = "zmk,rgb-fx-sparkle";
-        pixels = <0 1 2 3 4 5 6 7>;
+        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28>;
         colors = <HSL(180, 100, 60) HSL(300, 100, 60)>;
         duration = <3>;
     };
 
     fx_solid: fx_solid {
         compatible = "zmk,rgb-fx-solid";
-        pixels = <0 1 2 3 4 5 6 7>;
+        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28>;
         colors = <HSL(30, 100, 45) HSL(330, 100, 45)>;
         duration = <12>;
     };
 
     fx_fire: fx_fire {
         compatible = "zmk,rgb-fx-linear-gradient";
-        pixels = <0 1 2 3 4 5 6 7>;
+        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28>;
         colors = <HSL(0, 100, 45) HSL(25, 100, 50) HSL(45, 100, 55)>;
         angle = <90>;
         duration = <4>;
@@ -75,7 +103,7 @@
 
     fx_ocean: fx_ocean {
         compatible = "zmk,rgb-fx-linear-gradient";
-        pixels = <0 1 2 3 4 5 6 7>;
+        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28>;
         colors = <HSL(210, 100, 45) HSL(180, 100, 50) HSL(150, 90, 45)>;
         angle = <0>;
         duration = <15>;
@@ -83,14 +111,14 @@
 
     fx_gold: fx_gold {
         compatible = "zmk,rgb-fx-sparkle";
-        pixels = <0 1 2 3 4 5 6 7>;
+        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28>;
         colors = <HSL(40, 100, 55) HSL(55, 100, 65)>;
         duration = <2>;
     };
 
     fx_pink: fx_pink {
         compatible = "zmk,rgb-fx-ripple";
-        pixels = <0 1 2 3 4 5 6 7>;
+        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28>;
         color = <HSL(320, 100, 55)>;
         duration = <500>;
         ripple-width = <35>;
@@ -99,7 +127,7 @@
 
     fx_sunset: fx_sunset {
         compatible = "zmk,rgb-fx-linear-gradient";
-        pixels = <0 1 2 3 4 5 6 7>;
+        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28>;
         colors = <HSL(25, 100, 50) HSL(355, 100, 50) HSL(330, 100, 50)
                   HSL(285, 100, 50) HSL(235, 100, 50)>;
         angle = <0>;
@@ -109,7 +137,7 @@
 
     fx_heatmap: fx_heatmap {
         compatible = "zmk,rgb-fx-heatmap";
-        pixels = <0 1 2 3 4 5 6 7>;
+        pixels = <0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28>;
         color = <HSL(190, 100, 55)>;
         duration = <1200>;
     };

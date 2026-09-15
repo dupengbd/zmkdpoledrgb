@@ -18,9 +18,9 @@
  * 3 layers, RGB controls on LOWER (left half) and on the encoders
  * (lower = mode/hue, raise = brightness/speed), numpad on RAISE.
  *
- * Unlike the Choc, NO led_strip/spi3 override is needed here: the MX PCB
- * uses P0.06 with a 36-LED chain, which matches what the official sofle
- * shield already sets.
+ * Unlike the Choc, NO led_strip/spi3 override is needed here: each half
+ * has its own 29-LED WS2812 chain on P0.06 (chain-length set in the
+ * board overlays; mapping in config/zmkdp_left|right.overlay).
  */
 
 / {

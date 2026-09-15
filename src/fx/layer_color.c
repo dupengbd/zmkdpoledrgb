@@ -39,15 +39,15 @@ static const struct zmk_color_hsl layer_tint_colors[] = {
 };
 
 /* All thumb LEDs (same chain indices on both halves).
- * MX chain: pixel 0 = encoder, 1-6 = underglow, 7-35 = per-key.
- * Thumb pixels ordered outer -> inner: 7, 16, 17, 26, 27.
- * (Column orientation confirmed on hardware: the overlay map is
- * MIRRORED left/right — the PCB photo showed the back side.) */
-static const uint8_t layer_tint_thumb_px[] = {7, 16, 17, 26, 27};
+ * zmkdp 29-LED chain: pixel 0 = first light, 1-28 = keyboard lights.
+ * Thumbs sit under the bottom row, ordered outer -> inner: 1, 2, 3, 4
+ * and the inner pair 5, 6. */
+static const uint8_t layer_tint_thumb_px[] = {1, 2, 3, 4, 5, 6};
 
 /* Arrow cluster in LOWER: I(UP) J(LEFT) K(DOWN) L(RIGHT) positions.
- * Only exists on the right half (peripheral). */
-static const uint8_t layer_tint_arrow_px[] = {23, 29, 24, 19};
+ * Only exists on the right half (peripheral). Right-half LED indices:
+ * I = 21, J = 8, K = 16, L = 15 (see config/zmkdp_right.overlay). */
+static const uint8_t layer_tint_arrow_px[] = {21, 8, 16, 15};
 
 /* Saturated orange-yellow for the arrows. */
 static const struct zmk_color_hsl layer_tint_arrow_color = {.h = 40, .s = 100, .l = 50};
@@ -95,8 +95,10 @@ void zmk_rgb_fx_layer_color_apply(struct rgb_fx_pixel *pixels, size_t num_pixels
     /* Bluetooth panel in RAISE: BT_CLR (top-left corner) red,
      * profiles 0-4 yellow and the ACTIVE profile green. */
     if (layer_tint == 2) {
-        static const uint8_t bt_clr_px = 11;                 /* top-left corner (BT_CLR) */
-        static const uint8_t bt_prof_px[] = {12, 21, 22, 31, 32}; /* keys 1-5 */
+        /* Left half: BT_CLR = top-outer key -> LED 25, BT_SEL 0-4 ->
+         * LEDs 26, 27, 28, 20, 19 (see config/zmkdp_left.overlay). */
+        static const uint8_t bt_clr_px = 25;                 /* top-left corner (BT_CLR) */
+        static const uint8_t bt_prof_px[] = {26, 27, 28, 20, 19}; /* keys 1-5 */
 
         if (bt_clr_px < num_pixels) {
             pixels[bt_clr_px].value =

@@ -64,6 +64,19 @@ static struct rgb_fx_pixel pixels[] = {DT_INST_FOREACH_PROP_ELEM(0, pixels, PHAN
 static const size_t pixels_size = DT_INST_PROP_LEN(0, pixels);
 
 /**
+ * LEDs that must stay permanently off (chain indices), e.g. underglow
+ * removed from the build. Blanked after every render frame so no effect,
+ * layer tint or heatmap can light them.
+ */
+#if DT_INST_NODE_HAS_PROP(0, disabled_pixels)
+#define NUM_DISABLED_PIXELS DT_INST_PROP_LEN(0, disabled_pixels)
+static const size_t disabled_pixels[] = DT_INST_PROP(0, disabled_pixels);
+#else
+#define NUM_DISABLED_PIXELS 0
+static const size_t disabled_pixels[] = {0};
+#endif
+
+/**
  * Buffer for RGB values ready to be sent to the drivers.
  */
 static struct led_rgb px_buffer[DT_INST_PROP_LEN(0, pixels)];
@@ -136,6 +149,15 @@ static void zmk_rgb_fx_tick(struct k_work *work) {
 
     /* Per-layer tint (lower/raise), overwrites the whole frame. */
     zmk_rgb_fx_layer_color_apply(&pixels[0], pixels_size);
+
+    /* Force disabled LEDs (e.g. underglow) to stay black. */
+    for (size_t i = 0; i < NUM_DISABLED_PIXELS; ++i) {
+        if (disabled_pixels[i] < pixels_size) {
+            pixels[disabled_pixels[i]].value.r = 0;
+            pixels[disabled_pixels[i]].value.g = 0;
+            pixels[disabled_pixels[i]].value.b = 0;
+        }
+    }
 
     for (size_t i = 0; i < pixels_size; ++i) {
         zmk_rgb_to_led_rgb(&pixels[i].value, &px_buffer[i]);
