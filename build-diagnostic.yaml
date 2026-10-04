@@ -1,0 +1,35 @@
+---
+# ===========================================================================
+# 诊断固件：右半当作「中央」（右半单独插电脑就能打字）
+#
+# 这个文件不会被 GitHub Actions 读取 —— 构建流程只认 build.yaml。
+# 它是「配方存放处」，故意放在正常构建之外，避免它的产物和正式固件混在
+# 同一个 artifact 目录里被误刷。
+#
+# 什么时候需要它
+# --------------
+# 正常情况下右半是分体外围 (peripheral)，ZMK 会把 USB HID 协议栈整个编译掉
+# （app/Kconfig: ZMK_USB 依赖 !ZMK_SPLIT || ZMK_SPLIT_ROLE_CENTRAL），
+# 所以「右半插电脑没反应」是设计行为，不是故障。
+# 只有要单独验证右半的 MCU / 矩阵 / 固件是否健康时，才需要这一版：
+# 给右半加上 ZMK_SPLIT_ROLE_CENTRAL，让它把自己当主机。
+#
+# 怎么用
+# ------
+#   1. 把下面的 include 段拷进 build.yaml（保留其它条目也没关系）
+#   2. git push，等 Actions 出产物
+#   3. 构建完立刻把这段从 build.yaml 删掉，别让它长期留在正式构建里
+#
+# 重要副作用
+# ----------
+# 刷了这一版之后，右半是「中央」、左半也是「中央」，两半互不相认，
+# 各自是独立键盘 —— 分体功能完全不可用，按键会各打各的。
+# 验证完必须刷回 zmkdp_right_with_oled.uf2。
+#
+# 2026-10 实测：右半刷这一版后单独插电脑可以正常打字，说明硬件与矩阵无问题。
+# ===========================================================================
+include:
+  - board: nice_nano_v2
+    shield: "zmkdp_right nice_oled"
+    cmake-args: -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=y
+    artifact-name: DIAGNOSTIC-DO-NOT-FLASH_right_as_central

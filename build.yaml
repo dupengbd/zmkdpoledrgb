@@ -1,5 +1,11 @@
 ---
 # 正式固件
+#
+# 注意：这个文件里的每一个 include 都是日常要用的固件。
+# 刷进某半的固件必须与它的角色匹配 —— 右半只有 zmkdp_right_with_oled.uf2
+# 是正式固件；给它刷任何「中央版」固件（例如诊断用的 as-central）会让它
+# 自己当主机，两半从此互不相认，表现为「右半完全没反应」。
+# 诊断用的「右半当中央」版本已从这个文件里移走，见 build-diagnostic.yaml。
 include:
 
   - board: nice_nano_v2
@@ -21,18 +27,19 @@ include:
     artifact-name: settings_reset
 
 # ---------------------------------------------------------------------------
-# 诊断固件：右半当作「中央」(zmkdp_right_as_central)
+# 左半日志版：只有中央能开 USB 串口日志（分体外围被编译掉了 USB 协议栈）。
 #
-# 正常情况下右半是分体外围 (peripheral)，ZMK 会把 USB HID 协议栈整个编译掉
-# （Kconfig: ZMK_USB 依赖 !ZMK_SPLIT || ZMK_SPLIT_ROLE_CENTRAL），所以右半
-# 插电脑没反应是设计行为，不是故障。这一版给右半加上 ZMK_SPLIT_ROLE_CENTRAL，
-# 让它把自己当主机：单独插电脑即可打字，用来验证右半的 MCU / 矩阵 / 固件
-# 是否健康（2026-10 实测可用）。
+# 右半是外围、没有 USB 协议栈，开不了日志；只有左半（中央）能。ZMK v0.3 的
+# 默认日志等级就是 DBG，所以只开日志就能看到分体链路全过程：
+# 扫描 → 发现 split 服务 → 占用槽位 → 发起连接 → 订阅特征。
+# 刷进左半、插 USB，用串口工具看即可（CDC 不分波特率，参数随便）。
 #
-# 注意：刷了这一版后两半互不相认（各自是独立键盘），仅供诊断；
-# 验证完请刷回 zmkdp_right_with_oled.uf2。
+# 必须用 snippet，不能只写 -DCONFIG_ZMK_USB_LOGGING=y：那个开关会 select
+# USB_CDC_ACM/UART_CONSOLE，但它们依赖 DT_HAS_ZEPHYR_CDC_ACM_UART_ENABLED；
+# 缺了 cdc-acm-uart 设备树节点，Kconfig 直接 Aborting due to Kconfig warnings。
+# snippet 里带的 zmk-usb-logging.overlay 正是加上这个节点。
 # ---------------------------------------------------------------------------
   - board: nice_nano_v2
-    shield: "zmkdp_right nice_oled"
-    cmake-args: -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=y
-    artifact-name: zmkdp_right_as_central
+    shield: "zmkdp_left nice_oled"
+    snippet: zmk-usb-logging
+    artifact-name: zmkdp_left_usb_log
