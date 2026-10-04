@@ -7,8 +7,12 @@ config ZMK_KEYBOARD_NAME
 config ZMK_SPLIT_ROLE_CENTRAL
     default y
 
+# 实际只存在一个外围（右半）：build.yaml 里的 zmkdp_third 是注释掉的。
+# ZMK 的 start_scanning() 只在「每个已配置槽位都连上」时才停扫，设成 2
+# 会让左半永远在空扫一个不会出现的第二个外围；已连接状态下持续扫描会
+# 抢射频时间、影响链路稳定性。所以这里必须是 1。
 config ZMK_SPLIT_BLE_CENTRAL_PERIPHERALS
-  default 2
+    default 1
 
 config BT_MAX_CONN
     default 7

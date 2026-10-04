@@ -36,3 +36,16 @@ include:
     shield: "zmkdp_right nice_oled"
     cmake-args: -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=y
     artifact-name: zmkdp_right_as_central
+
+# ---------------------------------------------------------------------------
+# 排查用（临时分支 debug/split-link，查完删）：左半开 USB 串口日志
+#
+# 右半是外围、没有 USB 协议栈，开不了日志；只有左半（中央）能。ZMK v0.3 的
+# 默认日志等级就是 DBG，所以只开 ZMK_USB_LOGGING 就能看到分体链路全过程：
+# 扫描 → 发现 split 服务 → 占用槽位 → 发起连接 → 订阅特征。
+# 刷进左半、插 USB，用串口工具看即可（CDC 不分波特率，参数随便）。
+# ---------------------------------------------------------------------------
+  - board: nice_nano_v2
+    shield: "zmkdp_left nice_oled"
+    cmake-args: -DCONFIG_ZMK_USB_LOGGING=y
+    artifact-name: zmkdp_left_usb_log
