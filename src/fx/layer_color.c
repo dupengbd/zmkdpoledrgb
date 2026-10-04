@@ -38,21 +38,21 @@ static const struct zmk_color_hsl layer_tint_colors[] = {
     {.h = 270, .s = 100, .l = 50},  /* RAISE = purple */
 };
 
-/* Thumb LEDs. Chain indices DIFFER per half: the left half was
- * re-numbered (every row counted right-to-left, first light at inner
- * bottom), while the right half keeps the original mapping.
- * Left (central): bottom row 28..25 (outer->inner), inner column 19,
- * first light 0. Right (peripheral): unchanged 1..6. */
+/* Thumb LEDs. Both halves are wired as axis mirrors (chain starts
+ * top-inner, snakes per row; the inner-bottom corner light is pixel 24
+ * on BOTH halves), so the indices are identical:
+ * corner light 24, inner column 23, bottom row 28..25 (outer->inner). */
 #if IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL) || !IS_ENABLED(CONFIG_ZMK_SPLIT)
-static const uint8_t layer_tint_thumb_px[] = {0, 19, 25, 26, 27, 28};
+static const uint8_t layer_tint_thumb_px[] = {24, 23, 25, 26, 27, 28};
 #else
-static const uint8_t layer_tint_thumb_px[] = {1, 2, 3, 4, 5, 6};
+static const uint8_t layer_tint_thumb_px[] = {24, 23, 25, 26, 27, 28};
 #endif
 
-/* Arrow cluster in LOWER: I(UP) J(LEFT) K(DOWN) L(RIGHT) positions.
- * Only exists on the right half (peripheral). Right-half LED indices:
- * I = 21, J = 8, K = 16, L = 15 (see config/zmkdp_right.overlay). */
-static const uint8_t layer_tint_arrow_px[] = {21, 8, 16, 15};
+/* Arrow cluster in LOWER: UP on row 2, LEFT/DOWN/RIGHT on row 3
+ * (I(UP) J(LEFT) K(DOWN) L(RIGHT) positions). Only exists on the right
+ * half (peripheral). Right-half LED indices:
+ * UP = 10, LEFT = 12, DOWN = 13, RIGHT = 14 (see config/zmkdp_right.overlay). */
+static const uint8_t layer_tint_arrow_px[] = {10, 12, 13, 14};
 
 /* Saturated orange-yellow for the arrows. */
 static const struct zmk_color_hsl layer_tint_arrow_color = {.h = 40, .s = 100, .l = 50};
@@ -100,11 +100,11 @@ void zmk_rgb_fx_layer_color_apply(struct rgb_fx_pixel *pixels, size_t num_pixels
     /* Bluetooth panel in RAISE: BT_CLR (top-left corner) red,
      * profiles 0-4 yellow and the ACTIVE profile green. */
     if (layer_tint == 2) {
-        /* Left half (new numbering, top row outer->inner = 6..1):
-         * BT_CLR = top-outer corner -> LED 6, BT_SEL 0-4 ->
-         * LEDs 5, 4, 3, 2, 1 (see config/zmkdp_left.overlay). */
-        static const uint8_t bt_clr_px = 6;                  /* top-left corner (BT_CLR) */
-        static const uint8_t bt_prof_px[] = {5, 4, 3, 2, 1}; /* keys 1-5 */
+        /* Left half (photo numbering, top row outer->inner = 5..0):
+         * BT_CLR = top-outer corner -> LED 5, BT_SEL 0-4 ->
+         * LEDs 4, 3, 2, 1, 0 (see config/zmkdp_left.overlay). */
+        static const uint8_t bt_clr_px = 5;                  /* top-left corner (BT_CLR) */
+        static const uint8_t bt_prof_px[] = {4, 3, 2, 1, 0}; /* keys 1-5 */
 
         if (bt_clr_px < num_pixels) {
             pixels[bt_clr_px].value =

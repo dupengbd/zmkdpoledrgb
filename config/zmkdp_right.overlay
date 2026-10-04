@@ -1,15 +1,30 @@
 /*
  * RGB FX - right half (zmkdp, 29 LEDs).
  *
- * Mirror of zmkdp_left.overlay across the continuous canvas.
- * Right half x: 216 (inner seam) to 300 (outer); x = 300 - x_left.
- * Chain order is identical to the left half (pixel 0 = first light,
- * 1-28 = keyboard lights in hand-drawn snake order).
+ * Wiring confirmed by annotated PCB photo (2026-10): the chain starts
+ * at the top-INNER LED next to the MCU (photo LED1) and snakes across
+ * the board, alternating direction every row; the standalone corner
+ * light at the inner bottom is LED #25 (pixel 24), mid-chain, NOT the
+ * chain start:
+ *
+ *     (keyboard view, seam on the LEFT, outer edge on the RIGHT)
+ *         0  1  2  3  4  5
+ *        11 10  9  8  7  6
+ *        12 13 14 15 16 17
+ *        23 22 21 20 19 18
+ *        24 25 26 27 28      <- 24 = inner-bottom corner light
+ *
+ * Rows 1-4 have LEDs under the 6 outer columns (the innermost 7th key
+ * column has none); the bottom row only under the inner 4 columns plus
+ * the corner light. Canvas: x 216 (inner seam) .. 300 (outer), where
+ * x = 300 - x_left. The left half (config/zmkdp_left.overlay) is the
+ * axis-mirror of this mapping.
  *
  * key-pixels: 18 entries per row (7 left + 7 right + 4 third). Left and
- * third keys are remote here -> point to pixel 19 (inner top) so ripples
- * enter from the seam. Right keys map to their nearest LED; right key
- * col 0 is the INNER column (mirrored vs the left half).
+ * third keys are remote here -> point to pixel 0 (inner top) so ripples
+ * enter from the seam. Right keys map to their nearest LED; the
+ * innermost 7th column has no LED in rows 1-4 and aliases to its row's
+ * inner LED.
  */
 
 #include <rgb_fx.dtsi>
@@ -25,41 +40,41 @@
         drivers = <&led_strip>;
         chain-lengths = <29>;
         pixels
-            = <&pixel 300 0>,  /*  0 = first light (chain start) */
-              <&pixel 286 60>, /*  1 = bottom row, outer */
-              <&pixel 272 60>, /*  2 */
-              <&pixel 258 60>, /*  3 */
-              <&pixel 244 60>, /*  4 = bottom row, inner */
-              <&pixel 230 45>, /*  5 */
-              <&pixel 216 45>, /*  6 = row 3, inner seam */
-              <&pixel 216 30>, /*  7 = row 2, inner seam */
-              <&pixel 230 30>, /*  8 */
-              <&pixel 244 45>, /*  9 */
-              <&pixel 258 45>, /* 10 */
-              <&pixel 272 45>, /* 11 */
-              <&pixel 286 45>, /* 12 = row 3, outer */
-              <&pixel 286 30>, /* 13 = row 2, outer */
-              <&pixel 272 30>, /* 14 */
-              <&pixel 258 30>, /* 15 */
-              <&pixel 244 30>, /* 16 */
-              <&pixel 230 15>, /* 17 */
-              <&pixel 216 15>, /* 18 = row 1, inner seam */
-              <&pixel 216 0>,  /* 19 = top row, inner seam */
-              <&pixel 230 0>,  /* 20 */
-              <&pixel 244 15>, /* 21 */
-              <&pixel 258 15>, /* 22 */
-              <&pixel 272 15>, /* 23 */
-              <&pixel 286 15>, /* 24 = row 1, outer */
-              <&pixel 286 0>,  /* 25 = top row, outer */
-              <&pixel 272 0>,  /* 26 */
-              <&pixel 258 0>,  /* 27 */
-              <&pixel 244 0>;  /* 28 */
+            = <&pixel 230 0>,  /*  0 = top row, inner seam (chain start, MCU side) */
+              <&pixel 244 0>,  /*  1 */
+              <&pixel 258 0>,  /*  2 */
+              <&pixel 272 0>,  /*  3 */
+              <&pixel 286 0>,  /*  4 */
+              <&pixel 300 0>,  /*  5 = top row, outer */
+              <&pixel 300 15>, /*  6 = row 2, outer */
+              <&pixel 286 15>, /*  7 */
+              <&pixel 272 15>, /*  8 */
+              <&pixel 258 15>, /*  9 */
+              <&pixel 244 15>, /* 10 */
+              <&pixel 230 15>, /* 11 = row 2, inner seam */
+              <&pixel 230 30>, /* 12 = row 3, inner seam */
+              <&pixel 244 30>, /* 13 */
+              <&pixel 258 30>, /* 14 */
+              <&pixel 272 30>, /* 15 */
+              <&pixel 286 30>, /* 16 */
+              <&pixel 300 30>, /* 17 = row 3, outer */
+              <&pixel 300 45>, /* 18 = row 4, outer */
+              <&pixel 286 45>, /* 19 */
+              <&pixel 272 45>, /* 20 */
+              <&pixel 258 45>, /* 21 */
+              <&pixel 244 45>, /* 22 */
+              <&pixel 230 45>, /* 23 = row 4, inner seam */
+              <&pixel 216 60>, /* 24 = inner-bottom corner light */
+              <&pixel 230 60>, /* 25 = bottom row, inner */
+              <&pixel 244 60>, /* 26 */
+              <&pixel 258 60>, /* 27 */
+              <&pixel 272 60>; /* 28 = bottom row, outer */
         key-pixels
-            = <19 19 19 19 19 19 19  19 20 28 27 26 25 25  19 19 19 19
-               19 19 19 19 19 19 19  18 17 21 22 23 24 24  19 19 19 19
-               19 19 19 19 19 19 19   7  8 16 15 14 13 13  19 19 19 19
-               19 19 19 19 19 19 19   6  5  9 10 11 12 12  19 19 19 19
-               19 19 19 19 19 19 19   6  5  4  3  2  1  1  19 19 19 19>;
+            = < 0  0  0  0  0  0  0   0  0  1  2  3  4  5   0 0 0 0
+                0  0  0  0  0  0  0  11 11 10  9  8  7  6   0 0 0 0
+                0  0  0  0  0  0  0  12 12 13 14 15 16 17   0 0 0 0
+                0  0  0  0  0  0  0  23 23 22 21 20 19 18   0 0 0 0
+                0  0  0  0  0  0  0  24 25 26 27 28 28 18   0 0 0 0>;
     };
 
     fx_gradient: fx_gradient {
