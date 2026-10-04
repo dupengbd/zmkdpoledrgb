@@ -1,11 +1,18 @@
 ---
 # 正式固件
 #
-# 注意：这个文件里的每一个 include 都是日常要用的固件。
-# 刷进某半的固件必须与它的角色匹配 —— 右半只有 zmkdp_right_with_oled.uf2
-# 是正式固件；给它刷任何「中央版」固件（例如诊断用的 as-central）会让它
-# 自己当主机，两半从此互不相认，表现为「右半完全没反应」。
-# 诊断用的「右半当中央」版本已从这个文件里移走，见 build-diagnostic.yaml。
+# Actions 只读这个文件，这里的每一个 include 都是日常要用的固件。
+#
+# 刷进某半的固件必须与它的角色匹配：
+#   左半（中央）  -> zmkdp_left_with_studio.uf2
+#   右半（外围）  -> zmkdp_right_with_oled.uf2
+#
+# 已永久移除：「右半当中央」诊断版（cmake-args 带
+# -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=y）。2026-10 已确认不再需要编译。
+# 千万别再引入 —— 刷了它右半会把自己当主机，两半互不相认，表现为
+# 「右半完全没反应」，这个坑已经踩过一次（空口扫描可见右半在广播
+# HID 键盘包而不是分体服务）。
+# 真需要单独验证右半硬件时，临时加 cmake-args 构建，用完立刻删掉。
 include:
 
   - board: nice_nano_v2
