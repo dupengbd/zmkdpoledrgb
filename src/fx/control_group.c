@@ -162,9 +162,13 @@ static int fx_control_group_load_settings(const struct device *dev, const char *
             if (data->current_fx_idx >= config->fx_size) {
                 data->current_fx_idx = 0;
             }
-            /* Never restore the saved on/off state: every boot starts
-             * with the RGB off until the user toggles it on. */
-            data->active = false;
+            /* The ON/OFF state is deliberately NOT restored from flash:
+             * every boot comes up with the lighting ON (user request,
+             * 2026-10). Everything below it -- effect, brightness, hue,
+             * speed -- IS the user's saved state, so the board lights up
+             * exactly the way it was left. Turning it off is a single
+             * &rgbfx toggle away. */
+            data->active = true;
             return 0;
         }
 
@@ -426,10 +430,12 @@ static const struct rgb_fx_api fx_control_group_api = {
     };                                                                                             \
                                                                                                    \
     static struct fx_control_group_data fx_control_group_##idx##_data = {                          \
-        /* OFF by default: the user toggles it on (10% step). Also keeps   \
-         * 36 LEDs from slamming the rail at boot. */                      \
-        .active = false,                                                                           \
-        .brightness = 1,                                                                           \
+        /* ON by default (user request, 2026-10): the lighting comes up    \
+         * together with the keyboard instead of waiting for a manual      \
+         * toggle. A fresh board starts on the 40% step -- clearly         \
+         * visible without 29 LEDs slamming the rail at power-on. */       \
+        .active = true,                                                                            \
+        .brightness = 2,                                                                           \
         .current_fx_idx = 0,                                                                       \
         .speed_step = 2, /* 1x */                                                                  \
     };                                                                                             \
