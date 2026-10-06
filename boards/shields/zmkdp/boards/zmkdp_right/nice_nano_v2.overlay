@@ -34,22 +34,31 @@
 
 // devices on i2c0
 
+/*
+ * OLED: 0.96" 128x64 SSD1306, SAME panel as the left half.
+ *
+ * This node used to be 128x32 with segment-remap / com-invdir /
+ * com-sequential / inversion-on. That was wrong: this value came in with
+ * the initial bulk commit and was never verified against the real board,
+ * and 128x32 is the 0.91" panel, not the 0.96" one that is actually
+ * fitted. Both halves now carry an identical panel definition, so the
+ * only thing that can differ between them is their content.
+ *
+ * If the right screen ever comes up mirrored or upside down, the cause
+ * is the mounting direction, not the size -- re-add "segment-remap;"
+ * and "com-invdir;" here (that flips both axes) and nothing else.
+ */
 &i2c0 {
     oled: ssd1306@3c {
         compatible = "solomon,ssd1306fb";
         reg = <0x3c>;
         width = <128>;
-        height = <32>;
-
+        height = <64>;
         segment-offset = <0>;
         page-offset = <0>;
         display-offset = <0>;
-        multiplex-ratio = <31>;
+        multiplex-ratio = <63>;
         prechargep = <0x22>;
-        segment-remap;
-        com-invdir;
-        com-sequential;
-        inversion-on;
     };
 };
 / {
